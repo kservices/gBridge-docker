@@ -1,0 +1,3 @@
+[submodule "gbridge-src"]
+	path = gbridge-src
+	url = https://github.com/kservices/gBridge.git
