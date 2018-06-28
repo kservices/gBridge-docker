@@ -1,0 +1,1 @@
+This directory contains the docker file and the configuration for the background worker/ daemon, that is connected to the Redis server and receives/ sets data
