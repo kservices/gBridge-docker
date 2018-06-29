@@ -1,9 +1,38 @@
 version: '3'
+networks:
+  backend:
+    driver: bridge
+  web_frontend:
+    driver: bridge
+
 services:
+  database:
+    image: mysql:5
+    #volumes:
+    #  - "./.data/db:/var/lib/mysql"
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: gbridge_db
+      MYSQL_USER: gbridge_db
+      MYSQL_PASSWORD: abc132cba
+    #expose, rather than ports, only allows connections from linked machines
+    expose:
+      - "3306"
+    networks:
+      - backend
+  cache:
+    image: redis:4
+    restart: always
+    expose:
+      - "6379"
+    networks:
+      - backend
   web:
     build:
       context: ./
       dockerfile: ./docker-web/Dockerfile
+    restart: always
     ports:
      - "80:80"
     environment:
@@ -14,11 +43,11 @@ services:
       - APP_URL=http://localhost
 
       - DB_CONNECTION=mysql
-      - DB_HOST=127.0.0.1
+      - DB_HOST=database
       - DB_PORT=3306
-      - DB_DATABASE=homestead
-      - DB_USERNAME=homestead
-      - DB_PASSWORD=secret
+      - DB_DATABASE=gbridge_db
+      - DB_USERNAME=gbridge_db
+      - DB_PASSWORD=abc132cba
 
       - BROADCAST_DRIVER=log
       - CACHE_DRIVER=file
@@ -26,7 +55,7 @@ services:
       - SESSION_LIFETIME=120
       - QUEUE_DRIVER=sync
 
-      - REDIS_HOST=127.0.0.1
+      - REDIS_HOST=cache
       - REDIS_PASSWORD=null
       - REDIS_PORT=6379
 
@@ -37,13 +66,29 @@ services:
       - MAIL_PASSWORD=null
       - MAIL_ENCRYPTION=null
 
-      - GOOGLE_CLIENTID=abc123
-      - GOOGLE_PROJECTID=kappelt-smarthome-eb8cd
+      - GOOGLE_CLIENTID=${GBRIDGE_GOOGLE_CLIENTID}
+      - GOOGLE_PROJECTID=${GBRIDGE_GOOGLE_PROJECTID}
+    links:
+      - database
+      - cache
+    depends_on: 
+      - database
+      - cache
+    networks:
+      - web_frontend
+      - backend
   redis-worker:
     build:
       context: ./
       dockerfile: ./docker-redis-worker/Dockerfile
+    restart: always
     environment:
-      - GBRIDGE_REDISWORKER_REDIS=redis://192.168.2.174:6379
-      - GBRIDGE_REDISWORKER_MQTT=mqtt://hcpi01.int.kappelt.net:1883
-      - GBRIDGE_REDISWORKER_HOMEGRAPHKEY=abc123
+      - GBRIDGE_REDISWORKER_REDIS=redis://cache:6379
+      - GBRIDGE_REDISWORKER_MQTT=mqtt://${GBRIDGE_MQTT_CONNECTION}
+      - GBRIDGE_REDISWORKER_HOMEGRAPHKEY=${GBRIDGE_GOOGLE_HOMEGRAPHKEY}
+    networks:
+      - backend
+    links:
+      - cache
+    depends_on:
+      - cache

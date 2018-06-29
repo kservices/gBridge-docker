@@ -11,4 +11,5 @@ RUN npm install
 COPY ./gbridge-src/redis-worker/ ./
 COPY ./gbridge-src/redis-worker/config.sample.js ./config.js
 
-ENTRYPOINT [ "npm", "start" ]
+ENTRYPOINT [ "npm" ]
+CMD [ "start" ]

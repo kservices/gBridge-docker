@@ -11,6 +11,7 @@ COPY ./docker-web/laravel-dotenv /var/www/html/.env
 COPY ./docker-web/apache-config.conf /etc/apache2/sites-available/apache-gbridge.conf
 
 RUN chown -R www-data:www-data /var/www/
+RUN chmod -R 777 /var/www/html/storage/
 
 #set the new document root -> not necessary since we are overwriting the config
 #ENV APACHE_DOCUMENT_ROOT /var/www/html/public/
@@ -27,6 +28,7 @@ RUN apt-get update
 
 RUN apt-get install -y zlib1g zlib1g-dev
 RUN docker-php-ext-install zip
+RUN docker-php-ext-install pdo_mysql
 
 #install composer for laravel
 ENV COMPOSER_ALLOW_SUPERUSER 1
