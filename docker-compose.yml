@@ -29,10 +29,6 @@ services:
     networks:
       - backend
   web:
-    build:
-      context: ./
-      dockerfile: ./docker-web/Dockerfile
-    container_name: pkap/gbridge-web
     image: pkap/gbridge-web:latest
     restart: always
     ports:
@@ -80,10 +76,6 @@ services:
       - web_frontend
       - backend
   redis-worker:
-    build:
-      context: ./
-      dockerfile: ./docker-redis-worker/Dockerfile
-    container_name: pkap/gbridge-redis-worker
     image: pkap/gbridge-redis-worker:latest
     restart: always
     environment:
