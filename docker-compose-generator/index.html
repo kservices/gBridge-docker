@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kappelt gBridge Docker Compose Generator</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" integrity="sha256-3YM6A3pH4QFCl9WbSU8oXF5N6W/2ylvW0o2g+Z6TmLQ="
+        crossorigin="anonymous" />
+</head>
+
+<body>
+
+    <div class="container">
+        <p>&nbsp;</p>
+    </div>
+    <div class="container">
+        <h1>Kappelt gBridge</h1>
+        <h2>Docker Compose File Generator</h2>
+        <p>
+            <b>Select the adequate information for your environment, this script will generate a file for Docker Compose that
+                suits your needs.</b> Just run it - and you'll have a working gBridge instance.</p>
+
+        <div class="row">
+            <form action="#">
+                <div class="row">
+                    <div class="col s6">
+                        <div class="card white hoverable">
+                            <div class="card-content">
+                                <span class="card-title">Database</span>
+
+                                <p>
+                                    <label>
+                                        <input name="db-selectsource" type="radio" value="db-docker" checked>
+                                        <span>Setup a database in Docker</span>
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        <input name="db-selectsource" type="radio" value="db-own">
+                                        <span>Use an own database server</span>
+                                    </label>
+                                </p>
+                                <div class="db-own-properties" style="display: none;">
+                                    <p>MySQL servers (and compatible ones, like MariaDB) are supported. Create a new, empty
+                                        database on your database server. Specify authentication and connection details.</p>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input id="db-own-server" type="text" class="validate">
+                                            <label for="db-own-server">MySQL Server IP/ Hostname</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="db-own-database" type="text" class="validate">
+                                            <label for="db-own-database">MySQL Database Name</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="db-own-user" type="text" class="validate">
+                                            <label for="db-own-user">MySQL Username</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="db-own-password" type="text" class="validate">
+                                            <label for="db-own-password">MySQL Password</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="db-own-port" type="text" class="validate">
+                                            <label for="db-own-port">MySQL Port (default: 3306)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s6">
+                        <div class="card white hoverable">
+                            <div class="card-content">
+                                <span class="card-title">Redis Cache</span>
+
+                                <p>
+                                    <label>
+                                        <input name="re-selectsource" type="radio" value="re-docker" checked>
+                                        <span>Setup a Redis instance in Docker</span>
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        <input name="re-selectsource" type="radio" value="re-own">
+                                        <span>Use an own redis server</span>
+                                    </label>
+                                </p>
+                                <div class="re-own-properties" style="display: none;">
+                                    <p>Specify details for your own Redis server. Leave the password field empty if no authentication
+                                        is required.</p>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input id="re-own-server" type="text" class="validate">
+                                            <label for="re-own-server">Redis Server IP/ Hostname</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="re-own-port" type="text" class="validate">
+                                            <label for="re-own-port">Redis Port (default: 6379)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s6">
+                        <div class="card white hoverable">
+                            <div class="card-content">
+                                <span class="card-title">MQTT Server</span>
+                                <div class="mq-properties">
+                                    <p>Specify details for your own MQTT server. Leave the username/ password field empty if
+                                        no authentication is required.</p>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input id="mq-server" type="text" class="validate">
+                                            <label for="mq-server">MQTT Server IP/ Hostname</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <select id="mq-protocol">
+                                                <option value="" disabled selected>Select Protocol</option>
+                                                <option value="mqtt">Plain MQTT (default port 1883)</option>
+                                                <option value="mqtts">MQTT over TLS (default port 8883)</option>
+                                                <option value="ws">MQTT over Websockets (default port 80)</option>
+                                                <option value="wss">MQTT over secure Websockets (default port 443)</option>
+                                            </select>
+                                            <label>MQTT Protocol</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="mq-user" type="text" class="validate">
+                                            <label for="mq-user">MQTT Username</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="mq-password" type="text" class="validate">
+                                            <label for="mq-password">MQTT Password</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="mq-port" type="text" class="validate">
+                                            <label for="mq-port">MQTT Port</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s6">
+                        <div class="card white hoverable">
+                            <div class="card-content">
+                                <span class="card-title">Google Project Settings</span>
+                                <div class="go-properties">
+                                    <p>Specify details you've entered while creating a new smart home action in the Google Actions
+                                        Console.
+                                    </p>
+                                    <p>The Client ID is given in the account linking settings in the Google Actions Console.</p>
+                                    <p>The Google Project ID is shown in the project settings in the Google Actions Console.</p>
+                                    <p>A Homegraph Key can be generated in the Google Cloud dashboard after enabling the Homegraph
+                                        API.
+                                    </p>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input id="go-clientid" type="text" class="validate">
+                                            <label for="go-clientid">Account Linking Client ID</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="go-projectid" type="text" class="validate">
+                                            <label for="go-projectid">Google Project ID</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="go-homegraphkey" type="text" class="validate">
+                                            <label for="go-homegraphkey">Homegraph API Key</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s6">
+                        <div class="card white hoverable">
+                            <div class="card-content">
+                                <span class="card-title">App Settings</span>
+                                <div class="go-properties">
+                                    <p>Specify details about your application.</p>
+                                    <p>Enter the Laravel App Key you've used in a previous setup. Leave it empty if this is
+                                        your first setup.</p>
+                                    <p>Select a port for the gBridge web interface to be available on.</p>
+                                    <div class="row">
+                                        <div class="input-field col s12">
+                                            <input id="ap-appkey" type="text" class="validate">
+                                            <label for="ap-appkey">Laravel App Key</label>
+                                        </div>
+                                        <div class="input-field col s12">
+                                            <input id="ap-webport" type="text" class="validate">
+                                            <label for="ap-webport">Webserver Port (e.g. 80)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <div class="card white hoverable">
+                    <div class="card-content">
+                        <span class="card-title">Generate</span>
+                        <a class="waves-effect btn" id="btn-generate">Generate Composer File</a>
+                        <a class="waves-effect btn" id="btn-download">Generate and Download</a>
+                        <div style="display: hidden;" id="generated-config-container" class="row">
+                            <div class="col s12">
+                                <pre>
+                                    <code class="language-yaml" id="generated-config">
+                
+                                    </code>
+                                </pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/yamljs/0.3.0/yaml.min.js" integrity="sha256-fDg/uZo3GBErK1nydRVMJ6iZcDtOq2u3tWJtql0odec="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js" integrity="sha256-k77iqKeo6Og1Lf5mawux2rTxjaV9zUtyOWKVX3VttKE="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js" integrity="sha256-tvm0lHsuUZcOfj/0C9xJTU4OQx5KpUgxUcAXLX5kvwA="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Base64/1.0.1/base64.min.js" integrity="sha256-TIM6MO3yNF4Lvw+A1XLEyy/qiHW4MAjQCjJIqIhHKyY="
+        crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('select').formSelect();
+            $('input[type=radio][name=db-selectsource]').trigger('change');
+            $('input[type=radio][name=re-selectsource]').trigger('change');
+        });
+
+        $('input[type=radio][name=db-selectsource]').change(function () {
+            if ($('input[type=radio][name=db-selectsource]:checked').val() == 'db-own') {
+                $('div.db-own-properties').show();
+            } else {
+                $('div.db-own-properties').hide();
+            }
+        });
+        $('input[type=radio][name=re-selectsource]').change(function () {
+            if ($('input[type=radio][name=re-selectsource]:checked').val() == 're-own') {
+                $('div.re-own-properties').show();
+            } else {
+                $('div.re-own-properties').hide();
+            }
+        });
+        $('#btn-download').click(function () {
+            var yaml = generateYamlFromForm();
+            download(yaml, 'docker-compose.yml', 'application/x-yaml');
+            $('#generated-config').html(yaml);
+            $('#generated-config-container').show();
+            $('pre code').each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
+        });
+        $('#btn-generate').click(function () {
+            $('#generated-config').html(generateYamlFromForm());
+            $('#generated-config-container').show();
+            $('pre code').each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
+        })
+
+        function generateLaravelAppKey() {
+            var crypto = (self.crypto || self.msCrypto), QUOTA = 65536;
+            var decoder = new TextDecoder('ascii');
+            var a = new Uint8Array(16);
+            crypto.getRandomValues(a);
+            var text = Array.from(a, function (byte) {
+                return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+            }).join('')
+            console.log(text);
+            return 'base64:' + btoa(text);
+        }
+
+        function generateYamlFromForm() {
+            var data = {
+                version: '3',
+                networks: {
+                    backend: {
+                        driver: 'bridge'
+                    },
+                    web_frontend: {
+                        driver: 'bridge'
+                    }
+                },
+                services: {
+                    web: {
+                        image: 'pkap/gbridge-web:latest',
+                        restart: 'always',
+                        ports: [
+                            'ERROR'
+                        ],
+                        environment: {
+                            APP_ENV: 'production',
+                            APP_KEY: 'ERROR',
+                            APP_DEBUG: 'false',
+                            APP_LOG_LEVEL: 'warning',
+                            APP_URL: 'http://localhost',
+                            DB_CONNECTION: 'mysql',
+                            DB_HOST: 'ERROR',
+                            DB_PORT: 'ERROR',
+                            DB_DATABASE: 'ERROR',
+                            DB_USERNAME: 'ERROR',
+                            DB_PASSWORD: 'ERROR',
+                            BROADCAST_DRIVER: 'log',
+                            CACHE_DRIVER: 'file',
+                            SESSION_DRIVER: 'file',
+                            SESSION_LIFETIME: 120,
+                            QUEUE_DRIVER: 'sync',
+                            REDIS_HOST: 'ERROR',
+                            REDIS_PASSWORD: 'ERROR',
+                            REDIS_PORT: 'ERROR',
+                            MAIL_DRIVER: 'smtp',
+                            MAIL_HOST: 'ERROR',
+                            MAIL_PORT: 'ERROR',
+                            MAIL_USERNAME: 'ERROR',
+                            MAIL_PASSWORD: 'ERROR',
+                            MAIL_ENCRYPTION: 'ERROR',
+                            GOOGLE_CLIENTID: 'ERROR',
+                            GOOGLE_PROJECTID: 'ERROR'
+                        },
+                        links: [],
+                        depends_on: [],
+                        networks: [
+                            'web_frontend',
+                            'backend'
+                        ]
+                    },
+                    'redis-worker': {
+                        image: 'pkap/gbridge-redis-worker:latest',
+                        restart: 'always',
+                        environment: {
+                            GBRIDGE_REDISWORKER_REDIS: 'ERROR',
+                            GBRIDGE_REDISWORKER_MQTT: 'ERROR',
+                            GBRIDGE_REDISWORKER_MQTTUSER: 'ERROR',
+                            GBRIDGE_REDISWORKER_MQTTPASSWORD: 'ERROR',
+                            GBRIDGE_REDISWORKER_HOMEGRAPHKEY: 'ERROR'
+                        },
+                        networks: [
+                            'backend'
+                        ],
+                        links: [],
+                        depends_on: []
+                    }
+                }
+            }
+
+            //MySQL server
+            if ($('input[name=db-selectsource]:checked').val() == 'db-own') {
+                //User provided own database credentials.
+                data['services']['web']['environment']['DB_HOST'] = $('#db-own-server').val();
+                data['services']['web']['environment']['DB_PORT'] = $('#db-own-port').val();
+                data['services']['web']['environment']['DB_DATABASE'] = $('#db-own-database').val();
+                data['services']['web']['environment']['DB_USERNAME'] = $('#db-own-user').val();
+                data['services']['web']['environment']['DB_PASSWORD'] = $('#db-own-password').val();
+            } else {
+                //Use a docker database
+
+                var db_password = Math.random().toString(36).slice(2);
+
+                data['services']['database'] = {
+                    image: 'mysql:5',
+                    restart: 'always',
+                    environment: {
+                        MYSQL_RANDOM_ROOT_PASSWORD: 'true',
+                        MYSQL_DATABASE: 'gbridge_db',
+                        MYSQL_USER: 'gbridge_db',
+                        MYSQL_PASSWORD: db_password
+                    },
+                    expose: [
+                        '3306'
+                    ],
+                    networks: [
+                        'backend'
+                    ]
+                }
+
+                data['services']['web']['depends_on'].push('database');
+                data['services']['web']['links'].push('database');
+
+                data['services']['web']['environment']['DB_HOST'] = 'database';
+                data['services']['web']['environment']['DB_PORT'] = 3306;
+                data['services']['web']['environment']['DB_DATABASE'] = 'gbridge_db';
+                data['services']['web']['environment']['DB_USERNAME'] = 'gbridge_db';
+                data['services']['web']['environment']['DB_PASSWORD'] = db_password;
+            }
+
+            //Redis server
+            if ($('input[name=re-selectsource]:checked').val() == 're-own') {
+                //User provides own redis server
+                data['services']['redis-worker']['environment']['GBRIDGE_REDISWORKER_REDIS'] = 'redis://' + $('#re-own-server').val() + ':' + $('#re-own-port').val();
+                data['services']['web']['environment']['REDIS_HOST'] = $('#re-own-server').val();
+                data['services']['web']['environment']['REDIS_PASSWORD'] = 'null';
+                data['services']['web']['environment']['REDIS_PORT'] = $('#re-own-port').val();
+            } else {
+                //Use redis in a docker container
+                data['services']['cache'] = {
+                    image: 'redis:4',
+                    restart: 'always',
+                    expose: [
+                        '6379'
+                    ],
+                    networks: [
+                        'backend'
+                    ]
+                }
+
+                data['services']['web']['depends_on'].push('cache');
+                data['services']['web']['links'].push('cache');
+                data['services']['redis-worker']['depends_on'].push('cache');
+                data['services']['redis-worker']['links'].push('cache');
+
+                data['services']['redis-worker']['environment']['GBRIDGE_REDISWORKER_REDIS'] = 'redis://cache:6379';
+                data['services']['web']['environment']['REDIS_HOST'] = 'cache';
+                data['services']['web']['environment']['REDIS_PASSWORD'] = 'null';
+                data['services']['web']['environment']['REDIS_PORT'] = '6379';
+            }
+
+            //MQTT server
+            data['services']['redis-worker']['environment']['GBRIDGE_REDISWORKER_MQTT'] = $('#mq-protocol').val() + '://' + $('#mq-server').val() + ':' + $('#mq-port').val();
+            data['services']['redis-worker']['environment']['GBRIDGE_REDISWORKER_MQTTUSER'] = $('#mq-user').val();
+            data['services']['redis-worker']['environment']['GBRIDGE_REDISWORKER_MQTTPASSWORD'] = $('#mq-password').val();
+
+            //Google Project Settings
+            data['services']['web']['environment']['GOOGLE_CLIENTID'] = $('#go-clientid').val();
+            data['services']['web']['environment']['GOOGLE_PROJECTID'] = $('#go-projectid').val();
+            data['services']['redis-worker']['environment']['GBRIDGE_REDISWORKER_HOMEGRAPHKEY'] = $('#go-homegraphkey').val();
+
+            //App Settings
+            data['services']['web']['ports'][0] = $('#ap-webport').val() + ':80';
+
+            //generate App key, if necessary
+            if ($('#ap-appkey').val() == '') {
+                $('#ap-appkey').val(generateLaravelAppKey());
+            }
+
+            data['services']['web']['environment']['APP_KEY'] = $('#ap-appkey').val();
+
+            return YAML.stringify(data, 10, 3);
+        }
+    </script>
+</body>
+
+</html>
