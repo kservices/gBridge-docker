@@ -29,11 +29,11 @@ services:
     networks:
       - backend
   web:
-    image: pkap/gbridge-web:latest
+    image: pkap/gbridge-web-nginx:latest
     restart: always
     ports:
      - "80:80"
-    environment:
+    environment: &webapp-environment
       - APP_ENV=local
       - APP_KEY=base64:yBHt9LN/MRQqPiub6ECiPl+eWrJTbjXWjTnQM3F9x4k=
       - APP_DEBUG=true
@@ -69,12 +69,24 @@ services:
     links:
       - database
       - cache
+      - web-fpm
     depends_on: 
       - database
       - cache
+      - web-fpm
     networks:
       - web_frontend
       - backend
+    volumes:
+      - websrc:/var/www
+  web-fpm:
+    image: pkap/gbridge-web-fpm:latest
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - websrc:/var/www
+    environment: *webapp-environment
   redis-worker:
     image: pkap/gbridge-redis-worker:latest
     restart: always
@@ -88,3 +100,5 @@ services:
       - cache
     depends_on:
       - cache
+volumes:
+  websrc:
