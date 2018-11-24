@@ -19,8 +19,8 @@ script:
   - docker build -f ./docker-redis-worker/Dockerfile -t pkap/gbridge-redis-worker .
   - docker build -f ./docker-web-nginx/Dockerfile -t pkap/gbridge-web-nginx .
   - docker build --build-arg GITHUB_API_TOKEN=$GITHUB_API_TOKEN -f ./docker-web-fpm/Dockerfile -t pkap/gbridge-web-fpm .
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push pkap/gbridge-web
   - docker push pkap/gbridge-redis-worker
   - docker push pkap/gbridge-web-nginx
   - docker push pkap/gbridge-web-fpm
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
