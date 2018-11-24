@@ -35,5 +35,7 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && ln -s $(composer config --global home) /root/composer
 ENV PATH $PATH:/root/composer/vendor/bin7
 
+RUN su -s /bin/bash -c "composer config -g github-oauth.github.com $GITHUB_OAUTH_TOKEN" www-data
 RUN su -s /bin/bash -c "composer install" www-data
 RUN su -s /bin/bash -c "composer update" www-data
+RUN su -s /bin/bash -c "~/.composer/auth.json" www-data
