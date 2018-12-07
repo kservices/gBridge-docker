@@ -32,7 +32,7 @@ services:
     image: pkap/gbridge-web-nginx:latest
     restart: always
     ports:
-     - "80:80"
+     - "80:8880"
     environment: &webapp-environment
       - APP_ENV=local
       - APP_KEY=base64:yBHt9LN/MRQqPiub6ECiPl+eWrJTbjXWjTnQM3F9x4k=
